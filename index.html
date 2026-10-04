@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ScheduleXD</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="schedule-logo">
+                Schedule
+            </div>
+
+            <div class="app-name">
+                XD
+            </div>
+
+        </div>
+
+        <div class="top-right">
+
+            <select
+                    id="language"
+                    class="language-select"
+                    aria-label="Language"
+            >
+                <option value="az">AZ</option>
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+            </select>
+
+            <button
+                    id="themeToggle"
+                    class="theme-toggle"
+                    type="button"
+                    aria-label="Toggle theme"
+            >
+                <span class="sun-icon">☀</span>
+                <span class="moon-icon">☾</span>
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="controls">
+
+            <div class="control-group">
+
+                <label data-i18n="shift">
+                    Növbə
+                </label>
+
+                <select id="shift">
+
+                    <option
+                            value="morning"
+                            data-i18n="morning"
+                    >
+                        Səhər
+                    </option>
+
+                    <option
+                            value="afternoon"
+                            data-i18n="afternoon"
+                    >
+                        Günorta
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label data-i18n="week">
+                    Həftə
+                </label>
+
+                <select id="weekMode">
+
+                    <option
+                            value="both"
+                            data-i18n="bothWeeks"
+                    >
+                        Üst + Alt
+                    </option>
+
+                    <option
+                            value="upper"
+                            data-i18n="upperWeek"
+                    >
+                        Üst həftə
+                    </option>
+
+                    <option
+                            value="lower"
+                            data-i18n="lowerWeek"
+                    >
+                        Alt həftə
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                        onclick="generateTimetable()"
+                        data-i18n="generate"
+                >
+                    Yarat
+                </button>
+
+                <button
+                        onclick="clearAll()"
+                        data-i18n="clear"
+                >
+                    Təmizlə
+                </button>
+
+                <button onclick="exportPNG()">
+                    PNG
+                </button>
+
+                <button onclick="exportJPG()">
+                    JPG
+                </button>
+
+                <button
+                        onclick="window.print()"
+                        data-i18n="print"
+                >
+                    Çap
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <section class="workspace">
+
+            <div class="input-section">
+
+                <div
+                        class="section-title"
+                        id="lessonFormTitle"
+                        data-i18n="addLesson"
+                >
+                    Dərs əlavə et
+                </div>
+
+
+                <div class="lesson-form">
+
+                    <div class="form-field">
+
+                        <label data-i18n="lessonName">
+                            Dərsin adı
+                        </label>
+
+                        <input
+                                type="text"
+                                id="lessonName"
+                                placeholder="Məsələn: Riyazi analiz"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label data-i18n="teacher">
+                            Müəllim
+                        </label>
+
+                        <input
+                                type="text"
+                                id="lessonTeacher"
+                                placeholder="İstəyə bağlı"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label data-i18n="room">
+                            Otaq
+                        </label>
+
+                        <input
+                                type="text"
+                                id="lessonRoom"
+                                placeholder="İstəyə bağlı"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label data-i18n="sameWeeks">
+                            Üst və Alt həftə eynidir?
+                        </label>
+
+                        <select id="sameWeeks">
+
+                            <option
+                                    value="yes"
+                                    data-i18n="yes"
+                            >
+                                Bəli
+                            </option>
+
+                            <option
+                                    value="no"
+                                    data-i18n="no"
+                            >
+                                Xeyr
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                            id="sameWeekCount"
+                            class="form-field"
+                    >
+
+                        <label data-i18n="timesPerWeek">
+                            Həftədə neçə dəfə?
+                        </label>
+
+                        <select id="sameCount">
+
+                            <option value="1">
+                                1
+                            </option>
+
+                            <option value="2">
+                                2
+                            </option>
+
+                            <option value="3">
+                                3
+                            </option>
+
+                            <option value="4">
+                                4
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                            id="differentWeekCounts"
+                            class="week-counts"
+                            style="display: none;"
+                    >
+
+                        <div class="form-field">
+
+                            <label data-i18n="upperTimes">
+                                ÜST həftə neçə dəfə?
+                            </label>
+
+                            <select id="upperCount">
+
+                                <option value="0">
+                                    0
+                                </option>
+
+                                <option value="1">
+                                    1
+                                </option>
+
+                                <option value="2">
+                                    2
+                                </option>
+
+                                <option value="3">
+                                    3
+                                </option>
+
+                                <option value="4">
+                                    4
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-field">
+
+                            <label data-i18n="lowerTimes">
+                                ALT həftə neçə dəfə?
+                            </label>
+
+                            <select id="lowerCount">
+
+                                <option value="0">
+                                    0
+                                </option>
+
+                                <option value="1">
+                                    1
+                                </option>
+
+                                <option value="2">
+                                    2
+                                </option>
+
+                                <option value="3">
+                                    3
+                                </option>
+
+                                <option value="4">
+                                    4
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                            type="button"
+                            id="continueLesson"
+                            class="continue-button"
+                    >
+                        Davam et
+                    </button>
+
+
+                    <button
+                            type="button"
+                            id="cancelEdit"
+                            class="cancel-edit-button"
+                            style="display: none;"
+                    >
+                        Ləğv et
+                    </button>
+
+                </div>
+
+
+                <div
+                        id="lessonSchedule"
+                        class="lesson-schedule"
+                        style="display: none;"
+                ></div>
+
+            </div>
+
+
+            <div class="timetable-section">
+
+                <div
+                        class="section-title"
+                        data-i18n="schedule"
+                >
+                    Cədvəl
+                </div>
+
+                <div id="timetable">
+
+                    <div
+                            class="empty-state"
+                            data-i18n="empty"
+                    >
+                        Cədvəl burada görünəcək
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <div class="scandium-track">
+
+            <div class="scandium-info">
+
+                <div class="sc-symbol">
+
+                    <span class="atomic-number">
+                        21
+                    </span>
+
+                    <span class="element-symbol">
+                        Sc
+                    </span>
+
+                </div>
+
+
+                <div class="scandium-main">
+
+                    <span>
+                        <b>Atomic mass</b> 44.9559
+                    </span>
+
+                    <span>
+                        <b>Group</b> 3
+                    </span>
+
+                    <span>
+                        <b>Period</b> 4
+                    </span>
+
+                    <span>
+                        <b>Block</b> d
+                    </span>
+
+                    <span>
+                        <b>Electron configuration</b>
+                        [Ar] 3d¹ 4s²
+                    </span>
+
+                    <span>
+                        <b>CAS</b> 7440-20-2
+                    </span>
+
+                    <span>
+                        <b>Category</b> Transition metal
+                    </span>
+
+                    <span>
+                        <b>State</b> Solid
+                    </span>
+
+                    <span>
+                        <b>Density</b> 2.985 g/cm³
+                    </span>
+
+                    <span>
+                        <b>Melting point</b> 1541°C
+                    </span>
+
+                    <span>
+                        <b>Boiling point</b> 2836°C
+                    </span>
+
+                    <span>
+                        <b>Discovery</b> 1879
+                    </span>
+
+                    <span>
+                        <b>Discovered by</b>
+                        Lars Fredrik Nilson
+                    </span>
+
+                    <span>
+                        <b>Appearance</b> Silvery-white
+                    </span>
+
+                    <span>
+                        <b>Oxidation state</b> +3
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="scandium-info">
+
+                <div class="sc-symbol">
+
+                    <span class="atomic-number">
+                        21
+                    </span>
+
+                    <span class="element-symbol">
+                        Sc
+                    </span>
+
+                </div>
+
+
+                <div class="scandium-main">
+
+                    <span>
+                        <b>Atomic mass</b> 44.9559
+                    </span>
+
+                    <span>
+                        <b>Group</b> 3
+                    </span>
+
+                    <span>
+                        <b>Period</b> 4
+                    </span>
+
+                    <span>
+                        <b>Block</b> d
+                    </span>
+
+                    <span>
+                        <b>Electron configuration</b>
+                        [Ar] 3d¹ 4s²
+                    </span>
+
+                    <span>
+                        <b>CAS</b> 7440-20-2
+                    </span>
+
+                    <span>
+                        <b>Category</b> Transition metal
+                    </span>
+
+                    <span>
+                        <b>State</b> Solid
+                    </span>
+
+                    <span>
+                        <b>Density</b> 2.985 g/cm³
+                    </span>
+
+                    <span>
+                        <b>Melting point</b> 1541°C
+                    </span>
+
+                    <span>
+                        <b>Boiling point</b> 2836°C
+                    </span>
+
+                    <span>
+                        <b>Discovery</b> 1879
+                    </span>
+
+                    <span>
+                        <b>Discovered by</b>
+                        Lars Fredrik Nilson
+                    </span>
+
+                    <span>
+                        <b>Appearance</b> Silvery-white
+                    </span>
+
+                    <span>
+                        <b>Oxidation state</b> +3
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
