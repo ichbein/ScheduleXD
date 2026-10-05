@@ -2316,55 +2316,29 @@ function toggleTheme() {
 
 
 function exportPNG() {
-    exportTimetable(
-        "png"
-    );
+    exportTimetable("png");
 }
-
 
 function exportJPG() {
-    exportTimetable(
-        "jpg"
-    );
+    exportTimetable("jpg");
 }
 
-
 function exportTimetable(format) {
-    const timetable =
-        document.getElementById(
-            "timetable"
-        );
-
-    if (
-        !timetable ||
-        !timetable.querySelector(
-            ".timetable"
-        )
-    ) {
-        return;
-    }
-
-    if (
-        typeof html2canvas ===
-        "undefined"
-    ) {
-        alert(
-            format === "png"
-                ? "PNG export üçün html2canvas lazımdır."
-                : "JPG export üçün html2canvas lazımdır."
-        );
-
-        return;
-    }
-
-    timetable.classList.add(
-        "exporting"
-    );
+    const timetableContainer =
+        document.getElementById("timetable");
 
     const table =
-        timetable.querySelector(
-            ".timetable"
-        );
+        timetableContainer?.querySelector(".timetable");
+
+    if (!table) {
+        alert("Əvvəlcə cədvəli yaradın.");
+        return;
+    }
+
+    if (typeof html2canvas === "undefined") {
+        alert("Export sistemi yüklənmədi.");
+        return;
+    }
 
     const originalWidth =
         table.style.width;
@@ -2372,87 +2346,124 @@ function exportTimetable(format) {
     const originalMinWidth =
         table.style.minWidth;
 
+    const originalHeight =
+        table.style.height;
+
+    const originalOverflow =
+        timetableContainer.style.overflow;
+
+    timetableContainer.classList.add(
+        "exporting"
+    );
+
     table.style.width =
         `${table.scrollWidth}px`;
 
     table.style.minWidth =
         `${table.scrollWidth}px`;
 
-    html2canvas(
-        table,
-        {
-            backgroundColor:
-                "#ffffff",
-            scale: 2,
-            useCORS: true,
-            logging: false
-        }
-    )
-        .then(
-            canvas => {
+    table.style.height =
+        "auto";
 
-                const link =
-                    document.createElement(
-                        "a"
+    timetableContainer.style.overflow =
+        "visible";
+
+    html2canvas(table, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        width: table.scrollWidth,
+        height: table.scrollHeight,
+        windowWidth: table.scrollWidth,
+        windowHeight: table.scrollHeight
+    })
+        .then(canvas => {
+
+            const mimeType =
+                format === "png"
+                    ? "image/png"
+                    : "image/jpeg";
+
+            const extension =
+                format === "png"
+                    ? "png"
+                    : "jpg";
+
+            const filename =
+                `schedulexd.${extension}`;
+
+            canvas.toBlob(
+                blob => {
+
+                    if (!blob) {
+                        alert(
+                            "Fayl yaratmaq mümkün olmadı."
+                        );
+                        return;
+                    }
+
+                    const url =
+                        URL.createObjectURL(blob);
+
+                    const link =
+                        document.createElement("a");
+
+                    link.href = url;
+
+                    link.download =
+                        filename;
+
+                    document.body.appendChild(
+                        link
                     );
 
-                if (
-                    format === "png"
-                ) {
-                    link.download =
-                        "schedulexd.png";
+                    link.click();
 
-                    link.href =
-                        canvas.toDataURL(
-                            "image/png"
-                        );
-                } else {
-                    link.download =
-                        "schedulexd.jpg";
+                    link.remove();
 
-                    link.href =
-                        canvas.toDataURL(
-                            "image/jpeg",
-                            0.95
-                        );
-                }
+                    setTimeout(() => {
+                        URL.revokeObjectURL(url);
+                    }, 1000);
 
-                document.body.appendChild(
-                    link
-                );
+                },
+                mimeType,
+                format === "jpg"
+                    ? 0.95
+                    : undefined
+            );
+        })
+        .catch(error => {
 
-                link.click();
+            console.error(
+                "Export error:",
+                error
+            );
 
-                link.remove();
-            }
-        )
-        .catch(
-            error => {
+            alert(
+                "Cədvəli export etmək mümkün olmadı."
+            );
 
-                console.error(
-                    "Export error:",
-                    error
-                );
+        })
+        .finally(() => {
 
-                alert(
-                    "Cədvəli export etmək mümkün olmadı."
-                );
-            }
-        )
-        .finally(
-            () => {
+            table.style.width =
+                originalWidth;
 
-                table.style.width =
-                    originalWidth;
+            table.style.minWidth =
+                originalMinWidth;
 
-                table.style.minWidth =
-                    originalMinWidth;
+            table.style.height =
+                originalHeight;
 
-                timetable.classList.remove(
-                    "exporting"
-                );
-            }
-        );
+            timetableContainer.style.overflow =
+                originalOverflow;
+
+            timetableContainer.classList.remove(
+                "exporting"
+            );
+        });
 }
 
 
